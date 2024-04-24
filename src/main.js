@@ -46,10 +46,10 @@ async function run() {
 							}
 						} catch (err) {
 							// core.error(err)
-							core.warning("Matrix lock not available")
 						}
 
 						core.warning("Matrix locked...")
+
 						await sleep(1000 * retryDelay)
 					}
 
@@ -57,10 +57,6 @@ async function run() {
 						core.setFailed("Wait retry limit reached")
 						break
 					}
-
-					//TODO handle artifact deletion on finish
-
-					core.info("Matrix lock released")
 				}
 				break
 			case "continue":
@@ -81,7 +77,7 @@ async function run() {
 				break
 			default:
 				{
-					core.setFailed("Unkown step: " + step)
+					core.setFailed("Unknown step: " + step)
 				}
 				break
 		}
