@@ -40,7 +40,7 @@ async function run() {
 
 						try {
 							const artifact = await artifactClient.getArtifact(ARTIFACT_NAME)
-							core.info(`Found artifact ${artifact.id}`)
+							core.info(`Found artifact ${JSON.stringify(artifact)}`)
 
 							const download = await artifactClient.downloadArtifact(artifact.id, { path: workspace })
 							core.info(`Downloaded artifact to ${download.downloadPath}`)
