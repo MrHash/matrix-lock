@@ -1,7 +1,6 @@
 const core = require("@actions/core")
 const { DefaultArtifactClient } = require("@actions/artifact")
 const fs = require("fs")
-const path = require("path")
 
 const FILE_NAME = "matrix-lock-17c3b450-53fd-4b8d-8df8-6b5af88022dc.lock"
 const ARTIFACT_NAME = "matrix-lock"
@@ -37,9 +36,7 @@ async function run() {
 
 						try {
 							const {artifact} = await artifactClient.getArtifact(ARTIFACT_NAME)
-							core.info(`Found artifact ${artifact.id}`)
-							const downloadArtifactResponse = await artifactClient.downloadArtifact(artifact.id)
-							core.info(`Downloaded artifact to ${downloadArtifactResponse.downloadPath}`)
+							await artifactClient.downloadArtifact(artifact.id)
 
 							const lockFile = fs.readFileSync(FILE_NAME, { encoding: "utf8" })
 
@@ -48,7 +45,7 @@ async function run() {
 								break
 							}
 						} catch (err) {
-							core.error(err)
+							// core.error(err)
 							core.warning("Matrix lock not available")
 						}
 
@@ -60,25 +57,20 @@ async function run() {
 						break
 					}
 
-					const deleteArtifactResponse = await artifactClient.deleteArtifact(ARTIFACT_NAME)
-					core.info(`Deleted artifact ${deleteArtifactResponse.id}`)
-
 					core.info("Matrix lock released")
 				}
 				break
 			case "continue":
 				{
 					const {artifact} = await artifactClient.getArtifact(ARTIFACT_NAME)
-					core.info(`Found artifact ${artifact.id}`)
-
-					const downloadArtifactResponse = await artifactClient.downloadArtifact(artifact.id)
-					core.info(`Downloaded artifact to ${downloadArtifactResponse.downloadPath}`)
+					await artifactClient.downloadArtifact(artifact.id)
 
 					const lockFile = fs.readFileSync(FILE_NAME, { encoding: "utf8" })
 					const newOrder = lockFile.split(",").slice(1).join(",")
 
 					fs.writeFileSync(FILE_NAME, newOrder)
 
+					await artifactClient.deleteArtifact(ARTIFACT_NAME)
 					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
 
 					core.info("Continuing matrix...")
