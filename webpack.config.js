@@ -9,4 +9,7 @@ module.exports = {
   },
   target: "node",
   node: false,
+  optimization: {
+    minimize: false
+  }
 };
