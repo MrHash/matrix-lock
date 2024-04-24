@@ -1,16 +1,13 @@
 const core = require("@actions/core")
-const artifact = require("@actions/artifact")
+const { DefaultArtifactClient } = require("@actions/artifact")
 const fs = require("fs")
-const path = require("path")
 
 const FILE_NAME = "matrix-lock-17c3b450-53fd-4b8d-8df8-6b5af88022dc.lock"
 const ARTIFACT_NAME = "matrix-lock"
 
 async function run() {
 	try {
-		const artifactClient = artifact.create()
-		const workspace = process.env.GITHUB_WORKSPACE
-		const fullPath = path.join(workspace, FILE_NAME)
+		const artifactClient = new DefaultArtifactClient()
 
 		const step = core.getInput("step", { required: true })
 		switch (step) {
@@ -18,81 +15,63 @@ async function run() {
 				{
 					const order = core.getInput("order", { required: true })
 
-					fs.writeFileSync(fullPath, order)
+					fs.writeFileSync(FILE_NAME, order)
 
-					const uploadResponse = await artifactClient.uploadArtifact(
-						ARTIFACT_NAME,
-						[fullPath],
-						workspace,
-						{ continueOnError: false }
-					)
+					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME])
 
 					core.info("Matrix lock initialized")
 				}
 				break
 			case "wait":
 				{
-					core.info("Waiting for lock")
+					core.info("Waiting for matrix lock...")
 					const id = core.getInput("id", { required: true })
 					const retryCount = core.getInput("retry-count")
 					const retryDelay = core.getInput("retry-delay")
 
-					shouldContinue = false
+					let shouldContinue = false
 
 					for (let index = 0; index < retryCount; index++) {
 						core.info(`Try: ${index + 1}/${retryCount}`)
-						const downloadRespone =
-							await artifactClient.downloadArtifact(
-								ARTIFACT_NAME,
-								workspace,
-								{ continueOnError: false }
-							)
 
-						const lockFile = fs.readFileSync(fullPath, {
-							encoding: "utf8",
-						})
+						try {
+							const artifact = await artifactClient.getArtifact(ARTIFACT_NAME)
+							await artifactClient.downloadArtifact(artifact.id)
 
-						if (id === lockFile.split(",")[0]) {
-							shouldContinue = true
-							break
+							const lockFile = fs.readFileSync(FILE_NAME, { encoding: "utf8" })
+
+							if (id === lockFile.split(",")[0]) {
+								shouldContinue = true
+								break
+							}
+						} catch (err) {
+							core.warning("Matrix lock not available")
 						}
 
 						await sleep(1000 * retryDelay)
 					}
 
 					if (!shouldContinue) {
-						core.setFailed("Max retries reached")
+						core.setFailed("Wait retry limit reached")
 						break
 					}
 
-					core.info("Lock ready")
+					core.info("Matrix lock released")
 				}
 				break
 			case "continue":
 				{
-					core.info("Continue")
-					const downloadRespone =
-						await artifactClient.downloadArtifact(
-							ARTIFACT_NAME,
-							workspace,
-							{ continueOnError: false }
-						)
+					const artifact = await artifactClient.getArtifact(ARTIFACT_NAME)
+					await artifactClient.downloadArtifact(artifact.id)
 
-					let lockFile = fs.readFileSync(fullPath, {
-						encoding: "utf8",
-					})
-					lockFile = lockFile.split(",").slice(1).join(",")
+					const lockFile = fs.readFileSync(FILE_NAME, { encoding: "utf8" })
+					const newOrder = lockFile.split(",").slice(1).join(",")
 
-					fs.writeFileSync(fullPath, lockFile)
+					fs.writeFileSync(FILE_NAME, newOrder)
 
-					const uploadResponseB = await artifactClient.uploadArtifact(
-						ARTIFACT_NAME,
-						[fullPath],
-						workspace,
-						{ continueOnError: false }
-					)
+					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME])
 
-					core.info("Unlocking")
+					core.info("Continuing matrix...")
 				}
 				break
 			default:
