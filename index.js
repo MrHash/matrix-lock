@@ -9,18 +9,18 @@ const ARTIFACT_NAME = "matrix-lock"
 async function run() {
 	try {
 		const artifactClient = new DefaultArtifactClient()
+		const workspace = process.env.GITHUB_WORKSPACE
+		const fullPath = path.join(workspace, FILE_NAME)
 
 		const step = core.getInput("step", { required: true })
 		switch (step) {
 			case "init":
 				{
 					const order = core.getInput("order", { required: true })
-					const workspace = process.env.GITHUB_WORKSPACE
-					const fullPath = path.join(workspace, FILE_NAME)
 
 					fs.writeFileSync(FILE_NAME, order)
 
-					const upload = await artifactClient.uploadArtifact(ARTIFACT_NAME, [fullPath], process.env.GITHUB_WORKSPACE)
+					const upload = await artifactClient.uploadArtifact(ARTIFACT_NAME, [fullPath], workspace)
 					core.info(`Uploaded artifact ${upload.id}`)
 
 					core.info("Matrix lock initialized")
