@@ -48,6 +48,7 @@ async function run() {
 								break
 							}
 						} catch (err) {
+							core.warning(JSON.stringify(err))
 							core.warning("Matrix lock not available")
 						}
 
