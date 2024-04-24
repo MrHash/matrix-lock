@@ -1,6 +1,7 @@
 const core = require("@actions/core")
 const { DefaultArtifactClient } = require("@actions/artifact")
 const fs = require("fs")
+const path = require("path")
 
 const FILE_NAME = "matrix-lock-17c3b450-53fd-4b8d-8df8-6b5af88022dc.lock"
 const ARTIFACT_NAME = "matrix-lock"
@@ -14,10 +15,12 @@ async function run() {
 			case "init":
 				{
 					const order = core.getInput("order", { required: true })
+					const workspace = process.env.GITHUB_WORKSPACE
+					const fullPath = path.join(workspace, FILE_NAME)
 
 					fs.writeFileSync(FILE_NAME, order)
 
-					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
+					await artifactClient.uploadArtifact(ARTIFACT_NAME, [fullPath], process.env.GITHUB_WORKSPACE)
 
 					core.info("Matrix lock initialized")
 				}
@@ -36,7 +39,7 @@ async function run() {
 
 						try {
 							const artifact = await artifactClient.getArtifact(ARTIFACT_NAME)
-							await artifactClient.downloadArtifact(artifact.id)
+							await artifactClient.downloadArtifact(artifact.id, { path: workspace })
 
 							const lockFile = fs.readFileSync(FILE_NAME, { encoding: "utf8" })
 
@@ -64,14 +67,14 @@ async function run() {
 			case "continue":
 				{
 					const artifact = await artifactClient.getArtifact(ARTIFACT_NAME)
-					await artifactClient.downloadArtifact(artifact.id)
+					await artifactClient.downloadArtifact(artifact.id, { path: workspace })
 
 					const lockFile = fs.readFileSync(FILE_NAME, { encoding: "utf8" })
 					const newOrder = lockFile.split(",").slice(1).join(",")
 
 					fs.writeFileSync(FILE_NAME, newOrder)
 
-					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
+					await artifactClient.uploadArtifact(ARTIFACT_NAME, [fullPath], workspace)
 
 					core.info("Continuing matrix...")
 				}
