@@ -17,7 +17,7 @@ async function run() {
 
 					fs.writeFileSync(FILE_NAME, order)
 
-					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME])
+					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
 
 					core.info("Matrix lock initialized")
 				}
@@ -56,6 +56,8 @@ async function run() {
 						break
 					}
 
+					await artifactClient.deleteArtifact(ARTIFACT_NAME)
+
 					core.info("Matrix lock released")
 				}
 				break
@@ -69,7 +71,7 @@ async function run() {
 
 					fs.writeFileSync(FILE_NAME, newOrder)
 
-					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME])
+					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
 
 					core.info("Continuing matrix...")
 				}
