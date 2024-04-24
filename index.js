@@ -36,7 +36,6 @@ async function run() {
 
 						try {
 							const artifact = await artifactClient.getArtifact(ARTIFACT_NAME)
-							core.info(`artifact` + JSON.stringify(artifact))
 							await artifactClient.downloadArtifact(artifact.id)
 
 							const lockFile = fs.readFileSync(FILE_NAME, { encoding: "utf8" })
