@@ -19,12 +19,12 @@ async function run() {
 
 					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
 
-					core.info("Matrix lock initialized")
+					console.log("Matrix lock initialized")
 				}
 				break
 			case "wait":
 				{
-					core.info("Waiting for matrix lock...")
+					console.log("Waiting for matrix lock...")
 					const id = core.getInput("id", { required: true })
 					const retryCount = core.getInput("retry-count")
 					const retryDelay = core.getInput("retry-delay")
@@ -48,7 +48,7 @@ async function run() {
 							// core.error(err)
 						}
 
-						core.warning("Matrix locked...")
+						console.log("Matrix locked...")
 
 						await sleep(1000 * retryDelay)
 					}
@@ -72,7 +72,7 @@ async function run() {
 					await artifactClient.deleteArtifact(ARTIFACT_NAME)
 					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
 
-					core.info("Continuing matrix...")
+					console.log("Continuing matrix...")
 				}
 				break
 			default:
