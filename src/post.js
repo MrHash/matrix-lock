@@ -5,6 +5,8 @@ const FILE_NAME = `matrix-lock-${process.env.GITHUB_JOB}.lock`
 const ARTIFACT_NAME = `matrix-lock-${process.env.GITHUB_JOB}`
 
 async function run() {
+	console.log(FILE_NAME)
+	console.log(ARTIFACT_NAME)
 	try {
 		const artifactClient = new DefaultArtifactClient()
 		const {artifact} = await artifactClient.getArtifact(ARTIFACT_NAME)
