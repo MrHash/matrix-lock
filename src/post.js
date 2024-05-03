@@ -1,8 +1,8 @@
 const fs = require("fs")
 const { DefaultArtifactClient } = require("@actions/artifact")
 
-const FILE_NAME = `matrix-lock-${process.env.GITHUB_JOB}.lock`
-const ARTIFACT_NAME = `matrix-lock-${process.env.GITHUB_JOB}`
+const FILE_NAME = "matrix-lock-17c3b450-53fd-4b8d-8df8-6b5af88022dc.lock"
+const ARTIFACT_NAME = `matrix-lock${process.env.MATRIX_LOCK_ID}`
 
 async function run() {
 	console.log(FILE_NAME)
