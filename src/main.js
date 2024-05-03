@@ -7,8 +7,6 @@ const ARTIFACT_NAME = `matrix-lock-${process.env.GITHUB_JOB}`
 
 async function run() {
 	try {
-		console.log(FILE_NAME)
-		console.log(ARTIFACT_NAME)
 		const artifactClient = new DefaultArtifactClient()
 
 		const step = core.getInput("step", { required: true })
