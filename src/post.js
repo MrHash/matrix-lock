@@ -2,11 +2,9 @@ const fs = require("fs")
 const { DefaultArtifactClient } = require("@actions/artifact")
 
 const FILE_NAME = "matrix-lock-17c3b450-53fd-4b8d-8df8-6b5af88022dc.lock"
-const ARTIFACT_NAME = `matrix-lock${process.env.MATRIX_LOCK_ID}`
+const ARTIFACT_NAME = `matrix-lock-${process.env.MATRIX_LOCK_ID || 'default'}`
 
 async function run() {
-	console.log(FILE_NAME)
-	console.log(ARTIFACT_NAME)
 	try {
 		const artifactClient = new DefaultArtifactClient()
 		const {artifact} = await artifactClient.getArtifact(ARTIFACT_NAME)
