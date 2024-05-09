@@ -19,7 +19,7 @@ async function run() {
 
 					await artifactClient.uploadArtifact(ARTIFACT_NAME, [FILE_NAME], process.env.GITHUB_WORKSPACE)
 
-					console.log(`Matrix lock initialized in ${ARTIFACT_NAME}`)
+					console.log("Matrix lock initialized")
 				}
 				break
 			case "wait":
