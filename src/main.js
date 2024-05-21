@@ -13,6 +13,11 @@ async function run() {
 		switch (step) {
 			case "init":
 				{
+					try {
+						// Delete artifact if it already exists, in case of workflow rerun
+						await artifactClient.deleteArtifact(ARTIFACT_NAME)
+					} catch (err) {}
+
 					const order = core.getInput("order", { required: true })
 
 					fs.writeFileSync(FILE_NAME, order)
